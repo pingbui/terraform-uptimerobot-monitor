@@ -36,9 +36,11 @@ resource "uptimerobot_monitor" "this" {
   url           = lookup(each.value, "url")
   port          = lookup(each.value, "port", null)
   interval      = lookup(each.value, "interval", "300") // pro allows 60 seconds
+  http_password = lookup(each.value, "http_password", null)
+  http_username = lookup(each.value, "http_username", null)
 
   dynamic "alert_contact" {
-    for_each = local.alert_contacts
+    for_each = toset(local.alert_contacts)
 
     content {
       id = lookup(alert_contact.value, "id")
