@@ -4,10 +4,6 @@ provider "uptimerobot" {
 
 data "uptimerobot_account" "account" {}
 
-data "uptimerobot_alert_contact" "default" {
-  friendly_name = data.uptimerobot_account.account.email
-}
-
 resource "uptimerobot_alert_contact" "slack" {
   friendly_name = var.slack_friendly_name
   type          = "slack"
@@ -22,13 +18,13 @@ locals {
     },
     {
       name = "default"
-      id   = data.uptimerobot_alert_contact.default.id
+      id   = data.uptimerobot_account.account.id
     }
   ]
 }
 
 resource "uptimerobot_monitor" "this" {
-  for_each = {for m in var.monitors: m.friendly_name => m}
+  for_each = { for m in var.monitors : m.friendly_name => m }
 
   friendly_name = lookup(each.value, "friendly_name")
   type          = lookup(each.value, "type")

@@ -3,8 +3,8 @@ terraform {
 
   required_providers {
     uptimerobot = {
-      source = "TrueTechy/uptimerobot"
-      version = "0.5.2"
+      source  = "exileed/uptimerobot"
+      version = "0.1.1"
     }
   }
 }
