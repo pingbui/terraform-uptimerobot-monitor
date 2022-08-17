@@ -2,25 +2,15 @@ provider "uptimerobot" {
   api_key = var.api_key
 }
 
-data "uptimerobot_account" "account" {}
-
-resource "uptimerobot_alert_contact" "slack" {
-  friendly_name = var.slack_friendly_name
-  type          = "slack"
-  value         = var.slack_url
+resource "uptimerobot_alert_contact" "this" {
+  for_each      = { for c in var.contacts : c.friendly_name => c }
+  friendly_name = try(each.value.friendly_name, "default")
+  type          = try(each.value.type, "e-mail")
+  value         = try(each.value.value, null)
 }
 
 locals {
-  alert_contacts = [
-    {
-      name = "slack"
-      id   = uptimerobot_alert_contact.slack.id
-    },
-    {
-      name = "default"
-      id   = data.uptimerobot_account.account.id
-    }
-  ]
+  alert_contacts = try(uptimerobot_alert_contact.this[*].id, [])
 }
 
 resource "uptimerobot_monitor" "this" {
@@ -39,7 +29,7 @@ resource "uptimerobot_monitor" "this" {
     for_each = toset(local.alert_contacts)
 
     content {
-      id = lookup(alert_contact.value, "id")
+      id = try(alert_contact.value, null)
       # threshold  = 0  # pro only
       # recurrence = 0  # pro only
     }
